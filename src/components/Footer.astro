@@ -19,7 +19,10 @@ import { couple, eventDate, bride, groom } from '../data/engagement';
   <p class="font-serif-display text-lg italic text-cream/90" data-reveal="up" data-delay="300">
     {eventDate.display}
   </p>
-  <p class="mt-3 font-cinzel text-xs tracking-widest text-cream/60" data-reveal="up" data-delay="400">
+  <!-- No data-reveal: this is the last element on the page and would sit inside
+       the IntersectionObserver's bottom margin, so the reveal never fires and it
+       stayed invisible. Render it plainly so the hashtag is always visible. -->
+  <p class="mt-3 font-cinzel text-sm tracking-[0.3em] text-gold-soft">
     {couple.hashtag}
   </p>
 </footer>
