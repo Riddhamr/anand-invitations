@@ -1,0 +1,39 @@
+---
+import Divider from './Divider.astro';
+import CornerFlowers from './CornerFlowers.astro';
+import { firstPerson, secondPerson } from '../data/engagement';
+
+interface Props { first?: typeof firstPerson; second?: typeof secondPerson; }
+const { first = firstPerson, second = secondPerson } = Astro.props;
+---
+<section class="relative py-16 px-6 bg-cream overflow-hidden text-center">
+  <CornerFlowers />
+  <div class="relative z-10 max-w-3xl mx-auto">
+    <h2 class="font-script text-[2.4rem] sm:text-5xl text-rose-deep leading-[1.4] sm:leading-normal tracking-wide" style="word-spacing: 0.1em" data-reveal="up">
+      Awaiting Your Noble Presence
+    </h2>
+    <div data-reveal="zoom" data-delay="200"><Divider /></div>
+    <p class="font-serif-display italic text-xl text-foreground leading-relaxed" data-reveal="up" data-delay="300">
+      Because meeting two souls requires twice the fun — and you!
+    </p>
+
+    <!-- With love — families, in one box -->
+    <div
+      class="hover-lift mt-10 max-w-md mx-auto bg-cream/80 backdrop-blur-sm border border-gold-soft rounded-2xl px-8 py-7 shadow-soft"
+      data-reveal="zoom"
+      data-delay="300"
+    >
+      <p class="font-cinzel text-sm text-[hsl(95_32%_30%)] font-bold tracking-widest">WITH LOVE</p>
+
+      <div class="my-4 flex items-center justify-center gap-2">
+        <span class="h-px w-10 bg-gold-soft"></span>
+        <span class="text-gold text-sm">❀</span>
+        <span class="h-px w-10 bg-gold-soft"></span>
+      </div>
+
+      <p class="font-script text-3xl sm:text-4xl text-rose-deep leading-snug tracking-wide" style="word-spacing: 0.2em">{first.familyName} Family</p>
+      <p class="font-script text-2xl sm:text-3xl text-rose-deep leading-none my-1" aria-hidden="true">&amp;</p>
+      <p class="font-script text-3xl sm:text-4xl text-rose-deep leading-snug tracking-wide" style="word-spacing: 0.2em">{second.familyName} Family</p>
+    </div>
+  </div>
+</section>

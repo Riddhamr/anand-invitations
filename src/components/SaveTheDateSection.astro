@@ -1,0 +1,272 @@
+---
+import Divider from './Divider.astro';
+import CornerFlowers from './CornerFlowers.astro';
+import { eventDate } from '../data/engagement';
+---
+<section class="relative py-[30px] px-6 bg-cream overflow-hidden text-center">
+  <CornerFlowers />
+  <div class="relative z-10 w-full max-w-sm mx-auto">
+
+    <div data-reveal="zoom"><Divider /></div>
+
+    <p class="font-cinzel text-sm text-sage-deep tracking-widest uppercase mb-6" data-reveal="up" data-delay="100">
+      Save the Date
+    </p>
+
+    <!-- Scratch card -->
+    <div class="relative mx-auto" style="width:330px;height:150px;" data-reveal="zoom" data-delay="200">
+      <!-- Revealed layer: date (slightly smaller) + Sunday (bigger), nothing else -->
+      <div id="date-reveal-box" class="absolute inset-0 rounded-2xl border-2 border-gold-soft bg-cream flex flex-col items-center justify-center gap-3 pt-2 shadow-gold overflow-hidden">
+        <p class="font-script text-4xl text-rose-deep leading-[1.1] -mt-1 tracking-wider" style="word-spacing: 0.2em">{eventDate.display}</p>
+        <p class="font-serif-display text-lg italic text-foreground/70">{eventDate.dayLabel}</p>
+      </div>
+
+      <canvas id="scratch-canvas" width="330" height="150"
+        class="scratch-attention absolute inset-0 rounded-2xl cursor-pointer touch-none"
+        style="width:330px;height:150px;"></canvas>
+    </div>
+
+    <p id="scratch-hint-text" class="scratch-hint mt-3 font-serif-display text-base font-bold text-rose-deep">
+      Scratch the card above ↑
+    </p>
+
+    <!-- Countdown — reference site UI, hidden until scratch reveals the date -->
+    <div id="countdown-wrap" class="hidden mt-8" data-target={eventDate.isoUTC}>
+      <div id="countdown" class="flex justify-center gap-3 sm:gap-6">
+        {['Days','Hours','Minutes','Seconds'].map(unit => (
+          <div class="flex flex-col items-center min-w-[62px] sm:min-w-[80px]">
+            <div class="w-full aspect-square rounded-2xl bg-cream border border-gold-soft shadow-soft flex items-center justify-center backdrop-blur-sm">
+              <span id={`cd-${unit.toLowerCase()}`} class="cd-digit font-cinzel text-2xl sm:text-3xl text-rose-deep tabular-nums">--</span>
+            </div>
+            <span class="mt-2 text-[10px] sm:text-xs tracking-widest uppercase text-[hsl(95_32%_30%)]">{unit}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div data-reveal="zoom" data-delay="200" class="mt-2"><Divider /></div>
+  </div>
+</section>
+
+<style>
+  /* Pop-up bounce when the date is revealed */
+  @keyframes date-pop {
+    0%   { transform: scale(0.6);  opacity: 0.4; }
+    60%  { transform: scale(1.08); opacity: 1; }
+    80%  { transform: scale(0.97); }
+    100% { transform: scale(1); }
+  }
+  .date-pop { animation: date-pop 0.7s cubic-bezier(.22,1,.36,1) both; }
+
+  /* Hint text: invisible until triggered, fades in, then keeps jumping */
+  @keyframes hint-fade-in {
+    0%   { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes hint-jump {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-6px); }
+  }
+  .scratch-hint {
+    opacity: 0;
+  }
+  .scratch-hint.hint-active {
+    animation:
+      hint-fade-in .8s ease-out 4s forwards,
+      hint-jump 1.4s ease-in-out 4.8s infinite;
+  }
+
+  /* Attention pulse on the scratch cover until first touch */
+  @keyframes scratch-attention {
+    0%, 100% { transform: scale(1);    box-shadow: 0 0 0 0 hsl(36 55% 55% / .45); }
+    50%       { transform: scale(1.03); box-shadow: 0 0 22px 6px hsl(36 55% 55% / .35); }
+  }
+  .scratch-attention { animation: scratch-attention 1.8s ease-in-out infinite; }
+
+  /* Countdown slides up + fades in when shown */
+  @keyframes count-in {
+    0%   { transform: translateY(16px); opacity: 0; }
+    100% { transform: translateY(0);    opacity: 1; }
+  }
+  .count-in { animation: count-in 0.6s cubic-bezier(.22,1,.36,1) both; }
+</style>
+
+<script>
+  /* ── Scratch card ───────────────────────────────────────── */
+  const canvas   = document.getElementById('scratch-canvas') as HTMLCanvasElement;
+  const hintText = document.getElementById('scratch-hint-text')!;
+  const cdWrap   = document.getElementById('countdown-wrap')!;
+  const dateBox  = document.getElementById('date-reveal-box')!;
+  const ctx      = canvas.getContext('2d')!;
+  const W = 330, H = 150;
+
+  const grad = ctx.createLinearGradient(0,0,W,H);
+  grad.addColorStop(0,   'hsl(36 55% 62%)');
+  grad.addColorStop(0.5, 'hsl(36 65% 68%)');
+  grad.addColorStop(1,   'hsl(36 48% 54%)');
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.roundRect(0,0,W,H,14); ctx.fill();
+  ctx.fillStyle = 'hsl(348, 65%, 30%)';
+  ctx.font = '600 13px "Cinzel",serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('✨  SCRATCH TO REVEAL  ✨', W/2, H/2);
+
+  let active = false, revealed = false, started = false;
+
+  function onFirstScratch() {
+    if (started) return;
+    started = true;
+    canvas.classList.remove('scratch-attention');   // stop the attention pulse
+    // No auto-reveal timer — the card only reveals once >= 50% is scratched
+    // (checkReveal handles that on every scratch move).
+  }
+
+  function getPos(e: MouseEvent | Touch) {
+    const r = canvas.getBoundingClientRect();
+    return { x:(e.clientX-r.left)*(W/r.width), y:(e.clientY-r.top)*(H/r.height) };
+  }
+  function scratch(p:{x:number;y:number}) {
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath(); ctx.arc(p.x,p.y,22,0,Math.PI*2); ctx.fill();
+  }
+  function checkReveal() {
+    if (revealed) return;
+    const d = ctx.getImageData(0,0,W,H).data;
+    let cleared = 0;
+    for (let i=3;i<d.length;i+=4) if(d[i]<10) cleared++;
+    if (cleared/(W*H) > 0.5) fullyReveal();
+  }
+  function fullyReveal() {
+    if (revealed) return; revealed = true;
+    canvas.style.transition = 'opacity .4s ease'; canvas.style.opacity = '0';
+    hintText.classList.add('hidden');
+
+    // Date pops, page-wide confetti rains, countdown appears — all at once.
+    // Digits are already computed (ticker runs from page load), no late "--".
+    dateBox.classList.add('date-pop');
+    launchConfetti();
+    cdWrap.classList.remove('hidden');
+    cdWrap.classList.add('count-in');
+    setTimeout(() => canvas.remove(), 450);
+  }
+
+  /* Full-page celebration confetti (theme pastel colours) */
+  function launchConfetti() {
+    const c = document.createElement('canvas');
+    c.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:9999;pointer-events:none';
+    document.body.appendChild(c);
+    c.width = window.innerWidth; c.height = window.innerHeight;
+    const cx = c.getContext('2d')!;
+    const CW = c.width, CH = c.height;
+    // Bright, saturated party colours (magenta/teal/orange/purple/blue/gold/green/red)
+    const COLORS = ['#f48fb1','#80deea','#ffcc80','#ce93d8','#90caf9','#ffe082','#a5d6a7','#ef9a9a'];
+
+    // Burst origin = centre of the scratch card
+    const r = dateBox.getBoundingClientRect();
+    const ox = r.left + r.width / 2;
+    const oy = r.top  + r.height / 2;
+
+    // Pieces explode outward from the card, then gravity takes over
+    const parts = Array.from({ length: 180 }, () => {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 2.5 + Math.random() * 6;
+      return {
+        x: ox, y: oy,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 3.5,    // upward bias for a fountain feel
+        w: 5 + Math.random() * 6,
+        h: 8 + Math.random() * 8,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        rot: Math.random() * Math.PI * 2,
+        rotV: (Math.random() - .5) * .15,
+      };
+    });
+
+    const start = performance.now();
+    let last = start;
+    (function loop(now: number) {
+      const t  = now - start;
+      const dt = Math.min((now - last) / 16.667, 3);   // physics normalised to 60fps
+      last = now;
+      cx.clearRect(0, 0, CW, CH);
+      // hold full opacity 5.5s, then fade out over 1.5s (~7s total)
+      const fade = t > 5500 ? Math.max(0, 1 - (t - 5500) / 1500) : 1;
+      for (const pt of parts) {
+        pt.vy += 0.12 * dt;                            // gentle gravity
+        pt.vx *= Math.pow(0.992, dt);                  // air resistance
+        pt.x += pt.vx * dt; pt.y += pt.vy * dt; pt.rot += pt.rotV * dt;
+        cx.save();
+        cx.globalAlpha = fade;
+        cx.fillStyle = pt.color;
+        cx.translate(pt.x, pt.y); cx.rotate(pt.rot);
+        cx.fillRect(-pt.w / 2, -pt.h / 2, pt.w, pt.h);
+        cx.restore();
+      }
+      if (fade > 0) requestAnimationFrame(loop); else c.remove();
+    })(start);
+  }
+
+  canvas.addEventListener('mousedown',  e => { active=true;  onFirstScratch(); scratch(getPos(e)); });
+  canvas.addEventListener('mousemove',  e => { if(active){ scratch(getPos(e)); checkReveal(); } });
+  canvas.addEventListener('mouseup',    () => active=false);
+  canvas.addEventListener('mouseleave', () => active=false);
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); active=true;  onFirstScratch(); scratch(getPos(e.touches[0])); }, {passive:false});
+  canvas.addEventListener('touchmove',  e => { e.preventDefault(); if(active){ scratch(getPos(e.touches[0])); checkReveal(); } }, {passive:false});
+  canvas.addEventListener('touchend',   () => active=false);
+
+  /* ── Countdown — target comes from engagement.ts via data-target ── */
+  const TARGET = new Date(cdWrap.dataset.target!).getTime();
+  const prev: Record<string,number> = { days:-1, hours:-1, minutes:-1, seconds:-1 };
+
+  function flipDigit(id: string, val: number) {
+    const el = document.getElementById(`cd-${id}`);
+    if (!el || prev[id] === val) return;
+    prev[id] = val;
+    el.classList.add('changing');
+    setTimeout(() => {
+      el.textContent = String(val).padStart(2,'0');
+      el.classList.remove('changing');
+    }, 180);
+  }
+
+  function startCountdown() {
+    function tick() {
+      const diff = Math.max(0, TARGET - Date.now());
+      if (diff <= 0) {
+        const wrap = document.getElementById('countdown');
+        if (wrap) wrap.innerHTML = '<p class="font-script text-4xl text-rose">Today is the Day! 💕</p>';
+        return;
+      }
+      flipDigit('days',    Math.floor(diff / 864e5));
+      flipDigit('hours',   Math.floor(diff / 36e5 % 24));
+      flipDigit('minutes', Math.floor(diff / 6e4 % 60));
+      flipDigit('seconds', Math.floor(diff / 1e3 % 60));
+    }
+    tick(); setInterval(tick, 1000);
+  }
+
+  // Start calculating immediately — digits are ready before the reveal
+  startCountdown();
+
+  /* ── Trigger hint + attention pulse only when section is centred ── */
+  const section = canvas.closest('section')!;
+  let sectionTriggered = false;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (sectionTriggered) return;
+      const entry = entries[0];
+      if (entry.isIntersecting) {
+        sectionTriggered = true;
+        observer.disconnect();
+        // Start the hint countdown now
+        hintText.classList.add('hint-active');
+      }
+    },
+    {
+      // 0.7 = section must cover at least 65% of the viewport (roughly centred)
+      threshold: 0.65,
+    }
+  );
+  observer.observe(section);
+</script>

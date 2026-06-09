@@ -1,0 +1,23 @@
+---
+import Divider from './Divider.astro';
+import CornerFlowers from './CornerFlowers.astro';
+import EventCard from './EventCard.astro';
+import { events } from '../data/engagement';
+---
+
+<section class="relative py-20 px-4 bg-sage-soft overflow-hidden">
+  <CornerFlowers />
+  <div class="relative z-10 max-w-sm mx-auto">
+    <div class="text-center mb-10">
+      <p class="font-cinzel text-sm text-sage-deep tracking-widest" data-reveal="up">THE CELEBRATIONS</p>
+      <h2 class="font-script text-5xl sm:text-6xl text-rose-deep mt-4" data-reveal="up" data-delay="100">Events Schedule</h2>
+      <div data-reveal="zoom" data-delay="200"><Divider /></div>
+    </div>
+
+    {events.map((event, i) => (
+      <div data-reveal="up" data-delay={String((i + 1) * 100)}>
+        <EventCard {...event} />
+      </div>
+    ))}
+  </div>
+</section>

@@ -1,0 +1,9 @@
+---
+// Catch-all route: anything that isn't a real page (/, /rsvps, /api/rsvp)
+// or a file in public/ lands here and gets redirected to the home page.
+// Query params are preserved so /anything?v=bride → /?v=bride.
+export const prerender = false;
+
+const search = Astro.url.search;
+return Astro.redirect(`/${search}`, 302);
+---

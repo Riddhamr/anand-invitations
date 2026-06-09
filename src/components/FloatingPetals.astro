@@ -1,0 +1,49 @@
+---
+// Exact port of original FallingPetals component:
+//   18 petals, emoji cycle 🌸🌸🌿🌸🌼🌿🌸, randomized at page load,
+//   left 0–100%, top:-10vh (off-screen during delay), font-size 14–36px,
+//   duration 14–30s, delay 0–12s, drop-shadow, z-10, infinite linear loop.
+---
+
+<!-- z-[110] — above the envelope overlay (z-100) so petals fall from the very first page -->
+<div
+  id="petal-layer"
+  class="pointer-events-none fixed inset-0 z-[110] overflow-hidden"
+  aria-hidden="true"
+></div>
+
+<script>
+  const EMOJI = ['🌸', '🌸', '🌿', '🌸', '🌼', '🌿', '🌸'];
+  const layer = document.getElementById('petal-layer')!;
+  const COUNT = 10;
+
+  // Guaranteed distribution: 2 middle / 4 left / 4 right.
+  // Wider centre gap — sides end at 30% / start at 70%, middle band is 40–60%.
+  const zones: Array<() => number> = [];
+  for (let i = 0; i < 2; i++)  zones.push(() => 40 + Math.random() * 20);  // middle (40–60%)
+  for (let i = 0; i < 4; i++)  zones.push(() => Math.random() * 30);       // left  (0–30%)
+  for (let i = 0; i < 4; i++)  zones.push(() => 70 + Math.random() * 30);  // right (70–100%)
+  // Shuffle so middle/side petals don't appear in a fixed order
+  zones.sort(() => Math.random() - 0.5);
+
+  for (let n = 0; n < COUNT; n++) {
+    const duration = 14 + Math.random() * 16;                        // 14–30s
+    // Half the petals get a NEGATIVE delay → they start mid-fall, so the
+    // animation is visible immediately on the envelope page. The rest
+    // stagger in over 0–10s for continuous variety.
+    const delay = n % 2 === 0
+      ? -(Math.random() * duration)                                  // already falling
+      : Math.random() * 10;                                          // joins later
+
+    const span = document.createElement('span');
+    span.className = 'absolute animate-float-petal';
+    span.style.left              = `${zones[n]()}%`;
+    span.style.top               = '-10vh';                          // hidden above viewport during delay
+    span.style.fontSize          = `${14 + Math.random() * 22}px`;   // 14–36px
+    span.style.animationDuration = `${duration}s`;
+    span.style.animationDelay    = `${delay}s`;
+    span.style.filter            = 'drop-shadow(0 2px 4px hsl(25 30% 18% / 0.1))';
+    span.textContent = EMOJI[n % EMOJI.length];
+    layer.appendChild(span);
+  }
+</script>

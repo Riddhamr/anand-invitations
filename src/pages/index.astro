@@ -1,0 +1,56 @@
+---
+import Layout from '../layouts/Layout.astro';
+import EnvelopeOverlay from '../components/EnvelopeOverlay.astro';
+import FloatingPetals from '../components/FloatingPetals.astro';
+import Butterfly from '../components/Butterfly.astro';
+import HeroSection from '../components/HeroSection.astro';
+import SaveTheDateSection from '../components/SaveTheDateSection.astro';
+import EventsSection from '../components/EventsSection.astro';
+import PresenceSection from '../components/PresenceSection.astro';
+import VenueSection from '../components/VenueSection.astro';
+import RSVPSection from '../components/RSVPSection.astro';
+import Footer from '../components/Footer.astro';
+import { getVariant, eventDate, venue, siteUrl } from '../data/engagement';
+
+// Server-rendered so ?v=groom / ?v=bride changes names, title and link
+// preview per URL (crawlers read the HTML — client JS can't do this).
+export const prerender = false;
+
+const variant = Astro.url.searchParams.get('v');
+const order = getVariant(variant);
+const title = `${order.title} — Engagement Invitation`;
+const limited = order.defaultGuests > 0;
+const description =
+  `Join us to celebrate the engagement of ${order.title} on ${eventDate.display}${venue.name ? ` at ${venue.name}` : ''}.` +
+  (limited
+    ? ` This invitation is reserved for ${order.maxGuests} ${order.maxGuests === 1 ? 'guest' : 'guests'} — open it to RSVP.`
+    : order.rsvpEnabled
+      ? ' Open the invitation to see all the details and RSVP.'
+      : ' Open the invitation to see all the details.');
+const ogImage = `${siteUrl}/og-${order.side}.jpg`;
+---
+
+<Layout title={title} description={description} ogImage={ogImage}>
+  <!-- Fixed decorative layers (below envelope overlay z-[100]) -->
+  <FloatingPetals />
+  <Butterfly />
+
+  <!-- Envelope overlay — shown first, dismissed on tap -->
+  <EnvelopeOverlay initials={order.initials} />
+
+  <!-- Main invitation content -->
+  <main class="animate-fade-in">
+    <HeroSection first={order.first} second={order.second} />
+    <SaveTheDateSection />
+    <EventsSection />
+    <PresenceSection first={order.first} second={order.second} />
+    <VenueSection />
+    <RSVPSection
+      rsvpEnabled={order.rsvpEnabled}
+      maxGuests={order.maxGuests}
+      defaultGuests={order.defaultGuests}
+      variant={variant}
+    />
+    <Footer />
+  </main>
+</Layout>

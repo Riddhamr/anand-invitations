@@ -1,0 +1,195 @@
+---
+import '../styles/global.css';
+import { couple, eventDate, nameFont, venue, siteUrl } from '../data/engagement';
+
+interface Props { title?: string; description?: string; ogImage?: string; }
+const {
+  title = `${couple.title} — Engagement Invitation`,
+  description = `Join us to celebrate the engagement of ${couple.title} on ${eventDate.display}${venue.name ? ` at ${venue.name}` : ''}. Open the invitation to see all the details and RSVP.`,
+  ogImage = `${siteUrl}/og-groom.jpg`,
+} = Astro.props;
+
+// Google Fonts URL: base fonts + the configurable couple-name font.
+// If nameFont.family is invalid, Google ignores it and .font-names
+// falls back to Great Vibes (always loaded).
+const nameFamilyParam = nameFont.family.trim().replace(/ /g, '+');
+const fontsHref =
+  'https://fonts.googleapis.com/css2' +
+  '?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,700' +
+  '&family=Great+Vibes' +
+  '&family=Cinzel:wght@400;500;600' +
+  (nameFamilyParam && nameFamilyParam !== 'Great+Vibes' ? `&family=${nameFamilyParam}` : '') +
+  '&display=swap';
+---
+<!doctype html>
+<html lang="en" style={`--couple-name-font: '${nameFont.family}'`}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={`${siteUrl}/`} />
+    <!-- og:image is required for WhatsApp link previews (absolute URL, < 600 KB) -->
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImage} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href={fontsHref} />
+  </head>
+  <body class="overlay-open">
+    <slot />
+
+    <!-- Music toggle button — fixed bottom-right, shown after envelope opens -->
+    <audio id="bgMusic" loop preload="auto">
+      <source src="/assets/background.mp3" type="audio/mpeg" />
+    </audio>
+    <button
+      id="musicBtn"
+      aria-label="Toggle background music"
+      class="fixed bottom-5 right-5 z-[200] hidden w-11 h-11 rounded-full gradient-gold shadow-gold flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
+    >
+      <!-- Unmute icon (music playing) -->
+      <svg id="iconUnmute" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/>
+        <path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/>
+      </svg>
+      <!-- Mute icon (music paused) -->
+      <svg id="iconMute" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+        <path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/>
+        <line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/>
+      </svg>
+    </button>
+  </body>
+</html>
+
+<script>
+  // Always start at the top — the envelope overlay greets every page load,
+  // so don't let the browser restore the previous scroll position on refresh.
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
+
+  document.documentElement.classList.add('js-ready');
+
+  /* Preload everything below the envelope while the guest is on the landing
+     page — opening the envelope then shows fully-loaded content instantly. */
+  window.addEventListener('load', () => {
+    // Warm the cache for every lazy image on the page (event bg, couple, ganesh…)
+    document.querySelectorAll<HTMLImageElement>('img[loading="lazy"]').forEach(img => {
+      const pre = new Image();
+      pre.src = img.currentSrc || img.src;
+    });
+  });
+
+  /* Scroll reveal — starts AFTER the envelope opens, so the hero text
+     animates in front of the guest instead of finishing behind the overlay. */
+  const revealObs = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        revealObs.unobserve(entry.target);
+      }
+    }
+  }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+
+  function startReveal() {
+    document.querySelectorAll('[data-reveal]').forEach(el => revealObs.observe(el));
+  }
+
+  const envOverlay = document.getElementById('envelope-overlay');
+  if (envOverlay) {
+    const revealMo = new MutationObserver(() => {
+      if (envOverlay.style.display === 'none') { startReveal(); revealMo.disconnect(); }
+    });
+    revealMo.observe(envOverlay, { attributes: true, attributeFilter: ['style'] });
+  } else {
+    startReveal();
+  }
+
+  /* Cursor petal trail (desktop only) */
+  const TRAIL = ['🌸','🌼','✨','🌿','💫'];
+  let lastTrail = 0;
+  if (!window.matchMedia('(hover:none)').matches) {
+    document.addEventListener('mousemove', (e) => {
+      const now = Date.now();
+      if (now - lastTrail < 100) return;
+      lastTrail = now;
+      const el = document.createElement('span');
+      el.className = 'cursor-petal';
+      el.textContent = TRAIL[Math.floor(Math.random() * TRAIL.length)];
+      el.style.left = e.clientX + 'px';
+      el.style.top  = e.clientY + 'px';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 800);
+    });
+  }
+
+  /* Music toggle */
+  const music      = document.getElementById('bgMusic')    as HTMLAudioElement;
+  const musicBtn   = document.getElementById('musicBtn')   as HTMLButtonElement;
+  const iconUnmute = document.getElementById('iconUnmute') as SVGElement;
+  const iconMute   = document.getElementById('iconMute')   as SVGElement;
+  let   playing    = false;
+
+  function showMusicBtn() {
+    musicBtn.classList.remove('hidden');
+    musicBtn.classList.add('flex');
+  }
+
+  // Show the button once the overlay is dismissed
+  const overlayEl = document.getElementById('envelope-overlay');
+  if (overlayEl) {
+    const mo = new MutationObserver(() => {
+      if (overlayEl.style.display === 'none') {
+        showMusicBtn();
+        // Auto-play music after envelope opens (requires user gesture — the tap counts)
+        music.play().then(() => {
+          playing = true;
+          iconUnmute.style.display = 'block';
+          iconMute.style.display   = 'none';
+        }).catch(() => { /* autoplay blocked by browser */ });
+        mo.disconnect();
+      }
+    });
+    mo.observe(overlayEl, { attributes: true, attributeFilter: ['style'] });
+  } else {
+    showMusicBtn();
+  }
+
+  musicBtn.addEventListener('click', async () => {
+    if (!playing) {
+      try {
+        await music.play();
+        playing = true;
+        iconUnmute.style.display = 'block';
+        iconMute.style.display   = 'none';
+      } catch { /* autoplay blocked — user must tap again */ }
+    } else {
+      music.pause();
+      playing = false;
+      iconUnmute.style.display = 'none';
+      iconMute.style.display   = 'block';
+    }
+  });
+
+  /* Pause music when the tab/app goes to background; resume when it's back.
+     Only auto-resumes if the user had it playing (doesn't override mute). */
+  let pausedByVisibility = false;
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (playing && !music.paused) {
+        music.pause();
+        pausedByVisibility = true;
+      }
+    } else if (pausedByVisibility) {
+      pausedByVisibility = false;
+      music.play().catch(() => { /* resume blocked — user can tap the button */ });
+    }
+  });
+</script>

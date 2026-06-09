@@ -1,0 +1,75 @@
+---
+interface Props {
+  title: string; description: string; day: string; date: string;
+  time: string; venue: string; dressCode: string; icon: string;
+  bg: string; couple: string;
+}
+const { title, description, day, date, time, venue, icon, bg, couple } = Astro.props;
+
+// venue may contain \n — split into lines for rendering
+const venueLines = venue.split('\n');
+---
+
+<div
+  class="shimmer-sweep relative w-full rounded-2xl overflow-hidden border border-gold-soft shadow-elegant group"
+  data-reveal="zoom"
+>
+  <!-- Background -->
+  <img src={bg} alt={title} class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.04]" loading="lazy" />
+
+  <!-- Uniform overlay -->
+  <div class="absolute inset-0 bg-black/55"></div>
+
+  <!-- Sparkle dots -->
+  <span class="sparkle sparkle-1" aria-hidden="true">✨</span>
+  <span class="sparkle sparkle-2" aria-hidden="true">⭐</span>
+  <span class="sparkle sparkle-3" aria-hidden="true">✨</span>
+
+  <!-- Content -->
+  <div class="relative z-10 flex flex-col">
+
+    <!-- Top: icon + title + description -->
+    <div class="pt-8 px-6 text-center" data-reveal="down" data-delay="100">
+      <span class="text-4xl block mb-2">{icon}</span>
+      <h3 class="font-script text-5xl font-bold text-white leading-none drop-shadow-lg whitespace-nowrap">{title}</h3>
+      <p class="font-serif-display italic text-base text-white/85 mt-3 leading-relaxed">{description}</p>
+    </div>
+
+    <!-- Middle: date / time / venue (no dress code) -->
+    <div class="flex flex-col items-center justify-center gap-4 px-6 py-8">
+
+      <div class="text-center" data-reveal="up" data-delay="200">
+        <p class="font-cinzel text-xs text-gold tracking-[0.3em]">DATE</p>
+        <p class="font-cinzel text-base text-white mt-1">{day} · {date}</p>
+      </div>
+
+      <div class="h-px w-16 bg-gold-soft/40" data-reveal="zoom" data-delay="300"></div>
+
+      <div class="text-center" data-reveal="up" data-delay="300">
+        <p class="font-cinzel text-xs text-gold tracking-[0.3em]">TIME</p>
+        <p class="font-cinzel text-base text-white mt-1">{time}</p>
+      </div>
+
+      <div class="h-px w-16 bg-gold-soft/40" data-reveal="zoom" data-delay="400"></div>
+
+      <div class="text-center" data-reveal="up" data-delay="400">
+        <p class="font-cinzel text-xs text-gold tracking-[0.3em]">VENUE</p>
+        <p class="font-cinzel text-base text-white mt-1">
+          {venueLines.map((line, i) => (
+            <>
+              {i > 0 && <br />}
+              {line}
+            </>
+          ))}
+        </p>
+      </div>
+    </div>
+
+    <!-- Bottom: couple illustration -->
+    <div class="flex justify-center mt-2" data-reveal="up" data-delay="400">
+      <img src={couple} alt={`${title} couple illustration`}
+        class="h-56 w-auto object-contain object-bottom drop-shadow-2xl transition-transform duration-500 group-hover:-translate-y-2"
+        loading="lazy" />
+    </div>
+  </div>
+</div>

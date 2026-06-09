@@ -1,0 +1,14 @@
+---
+interface Props {
+  light?: boolean;
+}
+const { light = false } = Astro.props;
+const lineColor = light ? 'bg-gold-soft/60' : 'bg-gold-soft';
+const iconColor = light ? 'text-gold-soft' : 'text-gold';
+---
+
+<div class="my-6 flex items-center justify-center gap-3" aria-hidden="true">
+  <span class={`h-px w-16 ${lineColor}`}></span>
+  <span class={`text-lg ${iconColor}`}>❀</span>
+  <span class={`h-px w-16 ${lineColor}`}></span>
+</div>

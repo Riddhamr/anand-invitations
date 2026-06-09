@@ -1,0 +1,77 @@
+---
+import { couple } from '../data/engagement';
+// Exact port of original landing component (extracted from original site JS bundle)
+
+interface Props { initials?: string; }
+const { initials = couple.initials } = Astro.props;
+---
+
+<div
+  id="envelope-overlay"
+  class="fixed inset-0 z-[100] w-full flex flex-col items-center px-6 transition-opacity duration-500 overflow-y-auto"
+  style="background: linear-gradient(135deg, hsl(95 30% 80%), hsl(95 22% 68%));"
+>
+  <!-- 4 corner flowers with gentle drift — exactly as original -->
+  <span class="fixed top-6 left-6 text-3xl opacity-70 animate-drift" aria-hidden="true">🌸</span>
+  <span class="fixed top-8 right-10 text-2xl opacity-60 animate-drift" style="animation-delay:1s" aria-hidden="true">🌼</span>
+  <span class="fixed bottom-8 left-10 text-3xl opacity-70 animate-drift" style="animation-delay:2s" aria-hidden="true">🌿</span>
+  <span class="fixed bottom-6 right-6 text-3xl opacity-70 animate-drift" style="animation-delay:0.5s" aria-hidden="true">🌿</span>
+
+  <!-- Inner wrapper: centers content vertically on tall screens, scrolls on short ones -->
+  <div class="flex flex-col items-center justify-center min-h-full w-full py-16">
+    <!--
+      Button wraps image + seal — animate-envelope-open applies to the WHOLE button
+      so the seal rotates away together with the envelope (fixes the mashed-up look).
+    -->
+    <button
+      id="envelope-btn"
+      aria-label="Open invitation"
+      class="relative group transition-transform duration-500 hover:scale-105"
+      style="perspective:1000px"
+    >
+      <img
+        src="/assets/envelope-PE3Id_YU.png"
+        alt="Engagement invitation envelope"
+        class="w-[280px] sm:w-[360px] md:w-[420px] h-auto drop-shadow-2xl"
+        width="420"
+        height="294"
+        fetchpriority="high"
+      />
+      <span class="absolute inset-0 flex items-center justify-center">
+        <span class="w-20 h-20 sm:w-24 sm:h-24 rounded-full gradient-gold shadow-gold animate-shimmer flex items-center justify-center">
+          <span class="font-cinzel text-xs text-white/90">{initials}</span>
+        </span>
+      </span>
+    </button>
+
+    <!-- Text block — fades out when opening -->
+    <div id="envelope-text" class="mt-10 text-center animate-fade-up delay-300 transition-opacity duration-300">
+      <h2 class="font-script text-4xl sm:text-5xl text-[hsl(95_30%_30%)]">You're Invited</h2>
+      <!-- #3c2c20 = hsl(25 30% 18%) = --color-ink token -->
+      <p class="mt-2 text-ink italic tracking-wide">Tap the envelope to open your invitation</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const overlay = document.getElementById('envelope-overlay')!;
+  const btn     = document.getElementById('envelope-btn')!;
+  const text    = document.getElementById('envelope-text')!;
+  let opened = false;
+
+  btn.addEventListener('click', () => {
+    if (opened) return;
+    opened = true;
+
+    // Whole button (image + seal) plays envelope-open; text fades out
+    btn.classList.add('animate-envelope-open');
+    text.style.opacity = '0';
+
+    // After the 1s open animation, fade the overlay away and reveal the page
+    setTimeout(() => { overlay.style.opacity = '0'; }, 950);
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      document.body.classList.remove('overlay-open');
+    }, 1500);
+  });
+</script>

@@ -1,0 +1,40 @@
+---
+import Divider from './Divider.astro';
+import CornerFlowers from './CornerFlowers.astro';
+import { venue } from '../data/engagement';
+---
+<section class="relative py-16 px-6 bg-sage-soft overflow-hidden">
+  <CornerFlowers />
+  <div class="relative z-10 max-w-4xl mx-auto text-center">
+    <p class="font-cinzel text-sm text-sage-deep tracking-widest" data-reveal="up">VENUE</p>
+    <h2 class="font-script text-5xl sm:text-6xl text-rose-deep mt-4" data-reveal="up" data-delay="100">Where We Celebrate</h2>
+    <div data-reveal="zoom" data-delay="200"><Divider /></div>
+
+    <p class="font-cinzel text-base text-foreground max-w-xl mx-auto" data-reveal="up" data-delay="200">
+      {venue.name}
+    </p>
+    <p class="font-cinzel text-sm text-foreground/60 mt-1" data-reveal="up" data-delay="250">
+      {venue.line1}
+    </p>
+    <p class="font-cinzel text-sm text-foreground/60" data-reveal="up" data-delay="280">
+      {venue.line2}
+    </p>
+    <p class="mt-3 font-cinzel text-sm text-foreground/80" data-reveal="up" data-delay="300">
+      🕐 {venue.time}
+    </p>
+
+    <!-- Map removed — directions button only -->
+    <div data-reveal="up" data-delay="350">
+      <a
+        href={venue.mapDirections}
+        target="_blank" rel="noreferrer noopener"
+        class="inline-flex items-center gap-2 mt-8 px-8 py-3 rounded-full gradient-gold text-white font-cinzel text-sm tracking-wide shadow-gold hover:opacity-90 hover:scale-[1.03] active:scale-95 transition-all duration-300"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="3 11 22 2 13 21 11 13 3 11"/>
+        </svg>
+        Get Directions
+      </a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,125 @@
+---
+import { firstPerson, secondPerson, inviteText, inviteHighlight } from '../data/engagement';
+
+interface Props { first?: typeof firstPerson; second?: typeof secondPerson; }
+const { first = firstPerson, second = secondPerson } = Astro.props;
+
+// Split the invite text around the highlight phrase so it can render bolder
+const hlIndex = inviteText.indexOf(inviteHighlight);
+const beforeHl = hlIndex >= 0 ? inviteText.slice(0, hlIndex) : inviteText;
+const afterHl  = hlIndex >= 0 ? inviteText.slice(hlIndex + inviteHighlight.length) : '';
+// Text sizes & positions match the ananya-vartika reference hero exactly:
+//   namah text-xs · names text-5xl sm:text-8xl md:text-9xl ·
+//   parents "S/O <br> mom <br> & dad" block · wrapper pt-8 sm:pt-20
+---
+
+<section class="relative min-h-svh w-full overflow-hidden">
+  <!-- Background image — one unit with the section, no parallax -->
+  <img
+    src="/assets/mainbg-C1qdEah8.jpg"
+    alt="Engagement background"
+    class="absolute inset-0 w-full h-full object-cover"
+    width="1080"
+    height="1920"
+    fetchpriority="high"
+  />
+
+  <!-- Bottom edge fade only (~15px) — blends into next section's cream bg -->
+  <div class="absolute inset-x-0 bottom-0 h-[15px] bg-gradient-to-b from-transparent to-cream"></div>
+
+  <div class="relative z-10 min-h-svh flex flex-col items-center pt-8 sm:pt-20 px-6 pb-[280px] text-center">
+    <div class="text-rose-deep" data-reveal="zoom">
+      <img src="/assets/ganesh-idol-TubyYjSJ.png" alt="Lord Ganesha" width="96" height="96"
+        loading="lazy" class="mx-auto h-24 w-24 object-contain drop-shadow-md" />
+      <p class="font-serif-display italic text-[0.975rem] mt-2 font-bold">‖ Shree Ganeshaya Namah ‖</p>
+
+      <p class="max-w-2xl font-serif-display font-semibold text-base sm:text-lg text-rose-deep leading-snug mt-4" data-reveal="up" data-delay="100">
+        {beforeHl}{hlIndex >= 0 && <strong class="font-bold text-lg sm:text-xl">{inviteHighlight}</strong>}{afterHl}
+      </p>
+
+      <h1 class="mt-4" data-reveal="up" data-delay="200">
+        <span class="block font-names text-5xl sm:text-8xl md:text-9xl text-rose leading-none">
+          {first.firstName}
+        </span>
+      </h1>
+      <p class="mt-1 font-serif-display text-base sm:text-lg text-foreground/80" data-reveal="up" data-delay="250">
+        {first.relation} <br />
+        <span class="text-sm sm:text-base text-foreground tracking-wide">{first.mom} <br />& {first.dad}</span>
+      </p>
+
+      <p class="mt-2 font-script text-3xl sm:text-4xl text-rose-deep italic" data-reveal="zoom" data-delay="300">with</p>
+
+      <h1 class="mt-3" data-reveal="up" data-delay="350">
+        <span class="block font-names text-5xl sm:text-8xl md:text-9xl text-rose leading-none">
+          {second.firstName}
+        </span>
+      </h1>
+      <p class="mt-1 font-serif-display text-base sm:text-lg text-foreground/80 pb-4" data-reveal="up" data-delay="400">
+        {second.relation} <br />
+        <span class="text-sm sm:text-base text-foreground tracking-wide">{second.mom} <br />& {second.dad}</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- Scroll hint — dark pill badge so it reads over the garden art -->
+  <div id="scroll-hint" class="pointer-events-none fixed inset-x-0 bottom-6 z-30 flex justify-center transition-opacity duration-500">
+    <div class="flex items-center gap-2 rounded-full gradient-gold shadow-gold px-4 py-2">
+      <span class="font-cinzel text-[10px] tracking-[0.3em] text-white">SCROLL</span>
+      <svg class="scroll-arrow h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 9l6 6 6-6"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<style>
+  @keyframes scroll-bounce {
+    0%, 100% { transform: translateY(0);   opacity: .75; }
+    50%       { transform: translateY(9px); opacity: 1; }
+  }
+  .scroll-arrow { animation: scroll-bounce 1.6s ease-in-out infinite; }
+</style>
+
+<script>
+  const hint = document.getElementById('scroll-hint')!;
+  let scrolled = false;
+  let bumping  = false;   // true while the automatic bump animates
+  let bumpTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /* Hide the hint permanently once the GUEST scrolls (ignore our own bump) */
+  function onScroll() {
+    if (bumping || scrolled) return;
+    if (window.scrollY > 60) {
+      scrolled = true;
+      hint.style.opacity = '0';
+      if (bumpTimer) clearTimeout(bumpTimer);
+      window.removeEventListener('scroll', onScroll);
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  /* Gentle scroll bump 10s after the envelope opens, if still at the top */
+  function armBump() {
+    bumpTimer = setTimeout(() => {
+      if (scrolled || window.scrollY > 60) return;
+      bumping = true;
+      window.scrollTo({ top: 220, behavior: 'smooth' });
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // release the guard once we're back up
+        setTimeout(() => { bumping = false; }, 900);
+      }, 900);
+    }, 10000);
+  }
+
+  /* Start the timer when the envelope overlay is dismissed */
+  const overlayEl = document.getElementById('envelope-overlay');
+  if (overlayEl) {
+    const mo = new MutationObserver(() => {
+      if (overlayEl.style.display === 'none') { armBump(); mo.disconnect(); }
+    });
+    mo.observe(overlayEl, { attributes: true, attributeFilter: ['style'] });
+  } else {
+    armBump();
+  }
+</script>
