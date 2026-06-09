@@ -31,11 +31,11 @@ export const groom = {
 export const bride = {
   firstName:  'Vishva',
   nickname:   'Vishva',
-  fullName:   'Vishva Bhalodia',
-  familyName: 'Bhalodia',
+  fullName:   'Vishva Bhalodiya',
+  familyName: 'Bhalodiya',
   relation:   'D/O',
-  dad:        'Kishorbhai Bhagvanjibhai Bhalodia',
-  mom:        'Lataben Kishorbhai Bhalodia',
+  dad:        'Kishorbhai Bhagvanjibhai Bhalodiya',
+  mom:        'Lataben Kishorbhai Bhalodiya',
 };
 
 // ── Whose side is sending this invitation? ──────────────────
@@ -83,7 +83,7 @@ export const inviteHighlight = 'engagement ceremony';
 export const couple = {
   // Derived from invitedBy order
   initials:   `${firstPerson.firstName[0]} & ${secondPerson.firstName[0]}`,
-  hashtag:    '#VishvaAnand',
+  hashtag:    '#Vishvanand',
   title:      `${firstPerson.firstName} & ${secondPerson.firstName}`,
 };
 
