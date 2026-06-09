@@ -32,11 +32,15 @@ const fontsHref =
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={`${siteUrl}/`} />
-    <!-- og:image is required for WhatsApp link previews (absolute URL, < 600 KB) -->
+    <!-- og:image is required for WhatsApp link previews (absolute URL, < 600 KB).
+         WhatsApp also looks for og:image:secure_url; provide it explicitly. -->
     <meta property="og:image" content={ogImage} />
+    <meta property="og:image:secure_url" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:alt" content={`${couple.title} engagement invitation`} />
+    <meta property="og:site_name" content={couple.title} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content={ogImage} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
