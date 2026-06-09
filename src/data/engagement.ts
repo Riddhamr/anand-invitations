@@ -8,7 +8,7 @@
 // ── Site URL ────────────────────────────────────────────────
 // Absolute base URL of the deployed site. Used for og:image / og:url
 // (link previews on WhatsApp etc. need absolute URLs). No trailing slash.
-export const siteUrl = 'https://anand-invitation.vercel.app';
+export const siteUrl = 'https://vishvanand.vercel.app';
 
 // ── Couple-name font ────────────────────────────────────────
 // Any Google Font family name (e.g. 'Ephesis', 'Tangerine', 'Parisienne').
