@@ -22,6 +22,7 @@
   --shadow-elegant: 0 20px 60px -20px hsl(95 25% 25% / .25);
   --shadow-soft:    0 8px 30px -10px hsl(25 30% 18% / .15);
   --shadow-gold:    0 10px 40px -10px hsl(36 55% 45% / .4);
+  --shadow-red:     0 10px 40px -10px hsl(0 60% 40% / .45);
 
   /* Custom animations (keyframes defined below) */
   --animate-float-petal:   float-petal 20s linear infinite;
@@ -99,6 +100,7 @@
 
   /* Gradient shorthands */
   .gradient-gold  { background: linear-gradient(135deg, hsl(36 55% 60%), hsl(36 45% 45%)); }
+  .gradient-red   { background: linear-gradient(135deg, hsl(0 65% 58%), hsl(0 60% 42%)); }
   .gradient-sage  { background: linear-gradient(135deg, hsl(95 30% 78%), hsl(95 22% 62%)); }
   .gradient-rose  { background: linear-gradient(135deg, hsl(348 55% 55%), hsl(348 65% 38%)); }
   .gradient-cream { background: linear-gradient(180deg, hsl(38 50% 96%), hsl(38 40% 92%)); }

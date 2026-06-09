@@ -9,7 +9,7 @@ const { initials = couple.initials } = Astro.props;
 <div
   id="envelope-overlay"
   class="fixed inset-0 z-[100] w-full flex flex-col items-center px-6 transition-opacity duration-500 overflow-y-auto"
-  style="background: linear-gradient(135deg, hsl(95 30% 80%), hsl(95 22% 68%));"
+  style="background: linear-gradient(135deg, hsl(0 60% 82%), hsl(0 52% 62%));"
 >
   <!-- 4 corner flowers with gentle drift — exactly as original -->
   <span class="fixed top-6 left-6 text-3xl opacity-70 animate-drift" aria-hidden="true">🌸</span>
@@ -38,7 +38,7 @@ const { initials = couple.initials } = Astro.props;
         fetchpriority="high"
       />
       <span class="absolute inset-0 flex items-center justify-center">
-        <span class="w-20 h-20 sm:w-24 sm:h-24 rounded-full gradient-gold shadow-gold animate-shimmer flex items-center justify-center">
+        <span class="w-20 h-20 sm:w-24 sm:h-24 rounded-full gradient-red shadow-red animate-shimmer flex items-center justify-center">
           <span class="font-cinzel text-xs text-white/90">{initials}</span>
         </span>
       </span>
@@ -46,7 +46,7 @@ const { initials = couple.initials } = Astro.props;
 
     <!-- Text block — fades out when opening -->
     <div id="envelope-text" class="mt-10 text-center animate-fade-up delay-300 transition-opacity duration-300">
-      <h2 class="font-script text-4xl sm:text-5xl text-[hsl(95_30%_30%)]">You're Invited</h2>
+      <h2 class="font-script text-4xl sm:text-5xl text-[hsl(0_60%_32%)]">You're Invited</h2>
       <!-- #3c2c20 = hsl(25 30% 18%) = --color-ink token -->
       <p class="mt-2 text-ink italic tracking-wide">Tap the envelope to open your invitation</p>
     </div>

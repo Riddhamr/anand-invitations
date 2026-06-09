@@ -2,15 +2,12 @@
 // ENGAGEMENT DATA  — update this file whenever details change.
 // All components import from here; nothing is hardcoded elsewhere.
 //
-// ⚠️  ANAND INVITATION — fill in the real details below.
-//     Every value marked TODO is placeholder content copied from the
-//     original template and must be replaced before going live.
+// Vishva & Anand — Engagement
 // ─────────────────────────────────────────────────────────────
 
 // ── Site URL ────────────────────────────────────────────────
 // Absolute base URL of the deployed site. Used for og:image / og:url
 // (link previews on WhatsApp etc. need absolute URLs). No trailing slash.
-// TODO: set to the real Vercel domain once deployed.
 export const siteUrl = 'https://anand-invitation.vercel.app';
 
 // ── Couple-name font ────────────────────────────────────────
@@ -22,23 +19,23 @@ export const nameFont = {
 };
 
 export const groom = {
-  firstName:  'Anand',          // TODO
-  nickname:   'Anand',          // TODO
-  fullName:   'Anand',          // TODO
-  familyName: '',               // TODO
+  firstName:  'Anand',
+  nickname:   'Anand',
+  fullName:   'Anand Nadpara',
+  familyName: 'Nadpara',
   relation:   'S/O',
-  dad:        '',               // TODO
-  mom:        '',               // TODO
+  dad:        'Rajnibhai Govindbhai Nadpara',
+  mom:        'Rinaben Rajnibhai Nadpara',
 };
 
 export const bride = {
-  firstName:  'Partner',        // TODO
-  nickname:   'Partner',        // TODO
-  fullName:   'Partner',        // TODO
-  familyName: '',               // TODO
+  firstName:  'Vishva',
+  nickname:   'Vishva',
+  fullName:   'Vishva Bhalodia',
+  familyName: 'Bhalodia',
   relation:   'D/O',
-  dad:        '',               // TODO
-  mom:        '',               // TODO
+  dad:        'Kishorbhai Bhagvanjibhai Bhalodia',
+  mom:        'Lataben Kishorbhai Bhalodia',
 };
 
 // ── Whose side is sending this invitation? ──────────────────
@@ -49,38 +46,18 @@ export const invitedBy: 'bride' | 'groom' = 'groom';
 
 export type Side = 'bride' | 'groom';
 
-// Phone to contact if a guest opens a link without a valid ?v= variant
-export const rsvpContactPhone = '';   // TODO
-
-// Resolve everything that depends on the ?v= variant.
-//   groom / bride        → that side first, full RSVP (up to rsvpMaxGuests)
-//   groom-2 / bride-2     → that side first, RSVP capped at 2 (input prefilled 2)
-//   anything else / none  → card still shows (default side) but RSVP disabled
+// Resolve name ordering from the ?v= variant.
+//   groom → groom first,  bride → bride first,  anything else → invitedBy default
 export function getVariant(v?: string | null) {
-  // Accepts  groom | bride        → full RSVP (up to rsvpMaxGuests)
-  //          groom-N | bride-N     → RSVP capped at N guests (input prefilled N)
-  //          anything else / none  → card shows, RSVP disabled
-  const match = (v ?? '').match(/^(groom|bride)(?:-(\d+))?$/);
-  const recognized = match !== null;
-  const side: Side = (match ? match[1] : invitedBy) as Side;
-  const cap = match && match[2] ? Math.max(1, parseInt(match[2], 10)) : null;
-  const def = {
-    side,
-    maxGuests:     cap ?? rsvpMaxGuests,
-    defaultGuests: cap ?? 0,
-  };
+  const side: Side = (v === 'groom' || v === 'bride') ? v : invitedBy;
   const first  = side === 'groom' ? groom : bride;
   const second = side === 'groom' ? bride : groom;
   return {
-    recognized,
-    rsvpEnabled:   recognized,
     side,
     first,
     second,
     title:    `${first.firstName} & ${second.firstName}`,
     initials: `${first.firstName[0]} & ${second.firstName[0]}`,
-    maxGuests:     def.maxGuests,
-    defaultGuests: def.defaultGuests,
   };
 }
 
@@ -89,21 +66,12 @@ export const firstPerson  = invitedBy === 'groom' ? groom : bride;
 export const secondPerson = invitedBy === 'groom' ? bride : groom;
 
 export const eventDate = {
-  display:    'TODO Date',                    // TODO
-  short:      'TODO Date',                     // TODO
-  dayLabel:   'Sunday',                        // TODO
-  iso:        '2026-12-31T09:00:00-05:00',     // TODO — ceremony start (local)
-  isoUTC:     '2026-12-31T14:00:00Z',          // TODO — same instant in UTC (drives countdown)
+  display:    '21st June 2026',
+  short:      'June 21, 2026',
+  dayLabel:   'Sunday',
+  iso:        '2026-06-21T09:00:00+05:30', // ceremony start — 9:00 AM IST
+  isoUTC:     '2026-06-21T03:30:00Z',      // 9:00 AM IST in UTC — drives countdown
 };
-
-// Maximum guests one RSVP can bring (including the guest themself)
-export const rsvpMaxGuests = 10;
-
-// PIN required to view the RSVP responses dashboard (/rsvps)
-export const rsvpPin = '0000';        // TODO — choose a private PIN
-
-// Separate PIN required to mark an RSVP as stale / active again
-export const rsvpStalePin = '0000';   // TODO — choose a private PIN
 
 // Hero invitation line — use \n wherever you want a line break.
 export const inviteText =
@@ -115,18 +83,18 @@ export const inviteHighlight = 'engagement ceremony';
 export const couple = {
   // Derived from invitedBy order
   initials:   `${firstPerson.firstName[0]} & ${secondPerson.firstName[0]}`,
-  hashtag:    '#TODOHashtag',   // TODO
+  hashtag:    '#VishvaAnand',
   title:      `${firstPerson.firstName} & ${secondPerson.firstName}`,
 };
 
 export const venue = {
-  name:        '',              // TODO
-  time:        '',              // TODO
-  line1:       '',              // TODO
-  line2:       '',              // TODO
-  fullAddress: '',              // TODO
-  mapEmbed:    '',              // TODO — Google Maps embed URL
-  mapDirections: '',            // TODO — Google Maps directions URL
+  name:        'Detroja Patel Samaj',
+  time:        '9:00 AM',
+  line1:       'Sanosara, Manavadar',
+  line2:       'Junagadh, Gujarat',
+  fullAddress: 'Detroja Patel Samaj, Sanosara, Manavadar, Junagadh, Gujarat',
+  mapEmbed:    'https://maps.google.com/maps?q=Detroja+Patel+Samaj+Sanosara+Manavadar+Junagadh&z=14&output=embed',
+  mapDirections: 'https://maps.app.goo.gl/sBgoaKekBLn4oajL8?g_st=ic',
 };
 
 // ── Events ─────────────────────────────────────────────────
@@ -147,13 +115,13 @@ export interface CeremonyEvent {
 
 export const events: CeremonyEvent[] = [
   {
-    title:       'Ring Ceremony',                                       // TODO
-    description: 'The sacred exchange of rings and eternal promises',   // TODO
-    day:         'SUN',                                                 // TODO
+    title:       'Engagement Ceremony',
+    description: 'The sacred exchange of rings and eternal promises',
+    day:         'SUN',
     date:        eventDate.short,
-    time:        '09:00 AM',                                            // TODO
+    time:        '09:00 AM',
     // \n renders as a line break in the event card
-    venue:       '',                                                    // TODO
+    venue:       'Detroja Patel Samaj,\nSanosara, Manavadar,\nJunagadh, Gujarat',
     // Kept in config but not rendered in the UI (no dress code for now)
     dressCode:   '',
     icon:        '💍',

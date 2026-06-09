@@ -5,7 +5,7 @@ import { couple, eventDate, nameFont, venue, siteUrl } from '../data/engagement'
 interface Props { title?: string; description?: string; ogImage?: string; }
 const {
   title = `${couple.title} — Engagement Invitation`,
-  description = `Join us to celebrate the engagement of ${couple.title} on ${eventDate.display}${venue.name ? ` at ${venue.name}` : ''}. Open the invitation to see all the details and RSVP.`,
+  description = `Join us to celebrate the engagement of ${couple.title} on ${eventDate.display}${venue.name ? ` at ${venue.name}` : ''}. Open the invitation to see all the details.`,
   ogImage = `${siteUrl}/og-groom.jpg`,
 } = Astro.props;
 

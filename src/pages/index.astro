@@ -8,7 +8,6 @@ import SaveTheDateSection from '../components/SaveTheDateSection.astro';
 import EventsSection from '../components/EventsSection.astro';
 import PresenceSection from '../components/PresenceSection.astro';
 import VenueSection from '../components/VenueSection.astro';
-import RSVPSection from '../components/RSVPSection.astro';
 import Footer from '../components/Footer.astro';
 import { getVariant, eventDate, venue, siteUrl } from '../data/engagement';
 
@@ -19,14 +18,9 @@ export const prerender = false;
 const variant = Astro.url.searchParams.get('v');
 const order = getVariant(variant);
 const title = `${order.title} — Engagement Invitation`;
-const limited = order.defaultGuests > 0;
 const description =
   `Join us to celebrate the engagement of ${order.title} on ${eventDate.display}${venue.name ? ` at ${venue.name}` : ''}.` +
-  (limited
-    ? ` This invitation is reserved for ${order.maxGuests} ${order.maxGuests === 1 ? 'guest' : 'guests'} — open it to RSVP.`
-    : order.rsvpEnabled
-      ? ' Open the invitation to see all the details and RSVP.'
-      : ' Open the invitation to see all the details.');
+  ' Open the invitation to see all the details.';
 const ogImage = `${siteUrl}/og-${order.side}.jpg`;
 ---
 
@@ -45,12 +39,6 @@ const ogImage = `${siteUrl}/og-${order.side}.jpg`;
     <EventsSection />
     <PresenceSection first={order.first} second={order.second} />
     <VenueSection />
-    <RSVPSection
-      rsvpEnabled={order.rsvpEnabled}
-      maxGuests={order.maxGuests}
-      defaultGuests={order.defaultGuests}
-      variant={variant}
-    />
     <Footer />
   </main>
 </Layout>
